@@ -18,7 +18,6 @@ MongoClient.connect('mongodb+srv://nhnkg123:03110712@cluster0.obhtxgf.mongodb.ne
   })
   .then(mealsData => {
     meals = mealsData;
-    app.listen(3000);
   })
   .catch(err => {
     console.log(err);
@@ -67,14 +66,28 @@ app.post('/orders', async (req, res) => {
     });
   }
 
-  const newOrder = {
-    ...orderData,
-    id: (Math.random() * 1000).toString(),
-  };
-  const orders = await fs.readFile('./data/orders.json', 'utf8');
-  const allOrders = JSON.parse(orders);
-  allOrders.push(newOrder);
-  await fs.writeFile('./data/orders.json', JSON.stringify(allOrders));
+  MongoClient.connect('mongodb+srv://nhnkg123:03110712@cluster0.obhtxgf.mongodb.net/orders?retryWrites=true&w=majority')
+  .then(client => {
+    console.log('connected!');
+
+    const db = client.db();
+
+    const mealsCollection = db.collection('orders')
+
+    mealsCollection.insertOne(orderData);
+  })
+  .catch(err => {
+    console.log(err);
+  });
+
+  // const newOrder = {
+  //   ...orderData,
+  //   id: (Math.random() * 1000).toString(),
+  // };
+  // const orders = await fs.readFile('./data/orders.json', 'utf8');
+  // const allOrders = JSON.parse(orders);
+  // allOrders.push(newOrder);
+  // await fs.writeFile('./data/orders.json', JSON.stringify(allOrders));
   res.status(201).json({ message: 'Order created!' });
 });
 
@@ -85,6 +98,8 @@ app.use((req, res) => {
 
   res.status(404).json({ message: 'Not found' });
 });
+
+app.listen(3000);
 
 
 

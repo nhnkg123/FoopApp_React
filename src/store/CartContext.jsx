@@ -11,7 +11,7 @@ const CartContext = createContext({
 function CartReducer(state, action) {
     if (action.type === 'ADD_ITEM') {
         // ... update the state to add a meal item
-        const existingCartItemIndex = state.items.findIndex((item) => item.id === action.item.id);
+        const existingCartItemIndex = state.items.findIndex((item) => item._id === action.item._id);
 
         const updatedItems = [...state.items];
 
@@ -81,7 +81,7 @@ export function CartcontextProvider({ children }) {
             clearCart,
         };
 
-        console.log(cartContext);
+        //console.log(cartContext);
 
     return (
         <CartContext.Provider value={cartContext}>
