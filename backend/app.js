@@ -2,6 +2,27 @@ import fs from 'node:fs/promises';
 
 import bodyParser from 'body-parser';
 import express from 'express';
+import { MongoClient } from 'mongodb';
+
+let meals = [];
+
+MongoClient.connect('mongodb+srv://nhnkg123:03110712@cluster0.obhtxgf.mongodb.net/meals?retryWrites=true&w=majority')
+  .then(client => {
+    console.log('connected!');
+
+    const db = client.db();
+
+    const mealsCollection = db.collection('meals')
+
+    return mealsCollection.find().toArray();
+  })
+  .then(mealsData => {
+    meals = mealsData;
+    app.listen(3000);
+  })
+  .catch(err => {
+    console.log(err);
+  });
 
 const app = express();
 
@@ -16,8 +37,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/meals', async (req, res) => {
-  const meals = await fs.readFile('./data/available-meals.json', 'utf8');
-  res.json(JSON.parse(meals));
+  res.json(meals);
 });
 
 app.post('/orders', async (req, res) => {
@@ -66,4 +86,5 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Not found' });
 });
 
-app.listen(3000);
+
+
